@@ -2,23 +2,72 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build OS",
+            "label": "Assemble Bootloader",
             "type": "shell",
-            "command": "make",
+            "command": "fasm",
+            "args": [
+                "${workspaceFolder}/ShardOS/boot/boot.asm",
+                "${workspaceFolder}/ShardOS/boot.bin"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": ["$gcc"]
+            "problemMatcher": []
         },
         {
-            "label": "Run OS",
+            "label": "Compile Kernel",
             "type": "shell",
-            "command": "qemu-system-x86_64 -drive file=os-image,format=raw",
+            "command": "gcc",
+            "args": [
+                "-m32",
+                "-ffreestanding",
+                "-c",
+                "${workspaceFolder}/ShardOS/kernel.c",
+                "-o",
+                "${workspaceFolder}/ShardOS/kernel.o"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Link Kernel",
+            "type": "shell",
+            "command": "ld",
+            "args": [
+                "-m", "elf_i386",
+                "-T", "${workspaceFolder}/ShardOS/link.ld",
+                "-o", "${workspaceFolder}/ShardOS/ShardOS.bin",
+                "${workspaceFolder}/ShardOS/boot.o",
+                "${workspaceFolder}/ShardOS/kernel.o"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Create Bootable Image",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "fsutil file createnew ${workspaceFolder}/ShardOS/boot.img 1474560 && copy /b ${workspaceFolder}/ShardOS/boot.bin+${workspaceFolder}/ShardOS/ShardOS.bin ${workspaceFolder}/ShardOS/boot.img"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run QEMU",
+            "type": "shell",
+            "command": "qemu-system-i386",
+            "args": [
+                "-fda",
+                "${workspaceFolder}/ShardOS/boot.img"
+            ],
             "group": {
                 "kind": "test",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": []
         }
     ]
 }
