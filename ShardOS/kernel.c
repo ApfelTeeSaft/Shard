@@ -1,6 +1,6 @@
 // kernel.c
 void kernel_main() {
-    const char *str = "Hello World from C!";
+    const char *str = "Hello World in ShardOS";
     char *vidptr = (char*)0xb8000; // Video memory starts at 0xb8000
     unsigned int i = 0;
     unsigned int j = 0;
