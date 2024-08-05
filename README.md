@@ -1,5 +1,8 @@
 # ShardOS
 
+![image](https://github.com/user-attachments/assets/001dfe63-9b9c-4d69-b18a-7ec27b697813)
+
+
 ShardOS is a simple operating system developed as a learning project. It includes a basic bootloader and kernel written in assembly and C.
 
 ## Table of Contents
