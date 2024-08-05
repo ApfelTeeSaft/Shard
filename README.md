@@ -4,115 +4,86 @@
   <img src="https://github.com/user-attachments/assets/001dfe63-9b9c-4d69-b18a-7ec27b697813" alt="ShardOS Logo" width="256" height="256">
 </p>
 
-ShardOS is a simple operating system developed as a learning project. It includes a basic bootloader and kernel written in assembly and C.
+ShardOS is a simple operating system built from scratch for educational purposes. This project demonstrates the basics of OS development, including bootloading, kernel development, and simple hardware interaction.
 
 ## Screenshot
 
 ![image](https://github.com/user-attachments/assets/f58939df-0d91-4950-bf9f-4168f074a2dc)
 
 
-## Table of Contents
-- [Introduction](#introduction)
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Building and Running](#building-and-running)
-  - [Bootloader with C Kernel](#bootloader-with-c-kernel)
-  - [Standalone ASM Kernel](#standalone-asm-kernel)
-- [License](#license)
+## Prerequisites
 
-## Introduction
+To build ShardOS, you need the following tools installed on your Linux system:
 
-ShardOS is a minimal operating system project designed to understand the fundamentals of OS development. It consists of a bootloader and a basic kernel that prints a "Hello World" message to the screen. Alternatively, it can run a standalone ASM kernel that prints "Hello, ShardOS!".
+- `nasm` (Netwide Assembler)
+- `gcc` (GNU Compiler Collection)
+- `ld` (GNU Linker)
+- `qemu` (for emulation and testing)
 
-## Features
+You can install these tools using your package manager. For example, on Debian-based systems like Ubuntu, run:
 
-- Basic bootloader written in assembly
-- Simple kernel written in C
-- Option to run a standalone bootloader with an integrated ASM kernel
-- "Hello World" message display
+```sh
+sudo apt update
+sudo apt install nasm gcc make qemu-system-x86
+```
 
-## Requirements
+## Building ShardOS
 
-To build and run ShardOS, you need the following tools installed on your system:
+### 1. Assemble the Bootloader
 
-- NASM (Netwide Assembler)
-- GCC (GNU Compiler Collection) with MinGW for cross-compilation
-- QEMU (Quick Emulator) for testing
+Assemble the bootloader using `nasm`:
 
-## Installation
+```sh
+nasm -f elf32 boot/boot.asm -o boot.o
+```
 
-### Windows
+### 2. Compile the Kernel
 
-1. **Install Chocolatey**: If you don't have Chocolatey installed, open PowerShell as Administrator and run:
-   ```powershell
-   Set-ExecutionPolicy Bypass -Scope Process -Force; `
-   [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; `
-   iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-   ```
+Compile the kernel using `gcc`:
 
-2. **Install required packages**:
-   ```cmd
-   choco install nasm mingw qemu
-   ```
+```sh
+gcc -m32 -ffreestanding -c kernel.c -o kernel.o
+```
 
-### Linux
+### 3. Link the Object Files
 
-1. **Install required packages** (Debian-based systems):
-   ```bash
-   sudo apt update
-   sudo apt install nasm gcc qemu
-   ```
+Link the bootloader and kernel using `ld`:
 
-## Building and Running
+```sh
+ld -m elf_i386 -T link.ld -o ShardOS.bin boot.o kernel.o
+```
 
-### Bootloader with C Kernel
+### 4. Create a Bootable Image
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/apfelteesaft/Shard.git
-   cd Shard
-   ```
+Create a bootable image by concatenating the boot sector and the kernel:
 
-2. **Assemble the bootloader**:
-   ```bash
-   nasm -f elf32 boot.asm -o boot.o
-   ```
+```sh
+dd if=/dev/zero of=boot.img bs=512 count=2880
+dd if=ShardOS.bin of=boot.img conv=notrunc
+```
 
-3. **Compile the kernel**:
-   ```bash
-   gcc -m32 -ffreestanding -c kernel.c -o kernel.o
-   ```
+### 5. Run with QEMU
 
-4. **Link the object files**:
-   ```bash
-   ld -m i386pe -T link.ld -o ShardOS.bin boot.o kernel.o
-   ```
+Run your OS using QEMU:
 
-5. **Create a bootable disk image**:
-   ```cmd
-   fsutil file createnew boot.img 1474560
-   copy /b boot.bin+boot.img boot.img
-   ```
+```sh
+qemu-system-i386 -fda boot.img
+```
 
-6. **Run ShardOS using QEMU**:
-   ```bash
-   qemu-system-i386 -fda boot.img
-   ```
+## File Structure
 
-### Standalone ASM Kernel
+- `boot/boot.asm`: Assembly code for the bootloader.
+- `kernel.c`: C code for the kernel.
+- `link.ld`: Linker script for combining the bootloader and kernel into a single binary.
+- `deprecated/stage1/2.asm`: Old attempt at making a Standalone OS purely in Assembly
 
-1. **Assemble the standalone bootloader**:
-   ```bash
-   nasm -f bin standalone.asm -o standalone.bin
-   ```
+## Contributing
 
-2. **Create a bootable disk image**:
-   ```cmd
-   fsutil file createnew boot.img 1474560
-   copy /b standalone.bin+boot.img boot.img
-   ```
+Contributions are welcome! Feel free to submit issues or pull requests.
 
+## License
+
+This project is licensed under the GNU General Public License v3.0.
 3. **Run ShardOS using QEMU**:
    ```bash
    qemu-system-i386 -fda boot.img
