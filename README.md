@@ -90,4 +90,4 @@ To build and run ShardOS, you need the following tools installed on your system:
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/apfelteesaft/shard/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/ApfelTeeSaft/Shard/blob/main/LICENSE) file for details.
