@@ -6,9 +6,11 @@ start:
     mov si, loader_msg
     call print_string
 
-    ; Switch to 32-bit protected mode
+    ; Disable interrupts and load GDT
     cli
     lgdt [gdt_descriptor]
+
+    ; Enter protected mode
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
