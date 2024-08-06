@@ -1,4 +1,3 @@
-; boot.asm
 BITS 16
 ORG 0x7C00
 
@@ -16,17 +15,22 @@ start:
     mov si, load_msg
     call print_string
 
-    ; Load the bootloader (1 sector, starting at LBA 1)
+    ; Load the bootloader (2 sectors, starting at LBA 1)
     mov bx, 0x0000   ; Segment to load at
-    mov dh, 0x01     ; Number of sectors to read
-    mov dl, 0x80     ; Drive number (first hard drive)
-    mov cx, 0x0002   ; Starting LBA (logical block address)
-    call disk_load
+    mov ah, 0x02     ; BIOS read sectors
+    mov al, 0x02     ; Number of sectors to read
+    mov ch, 0x00     ; Cylinder
+    mov cl, 0x02     ; Sector number
+    mov dh, 0x00     ; Head number
+    mov dl, 0x80     ; Drive number
+    int 0x13
+    jc disk_error
 
     ; Jump to the bootloader
     jmp 0x0000:0x0200
 
 load_msg db "Loading second stage bootloader...", 0
+disk_error db "Disk read error", 0
 
 print_string:
     mov ah, 0x0E
@@ -38,23 +42,6 @@ print_string:
     jmp .repeat
 .done:
     ret
-
-disk_load:
-    pusha
-    mov ah, 0x02   ; BIOS read sectors
-    mov al, dh     ; Number of sectors
-    mov ch, 0x00   ; Cylinder
-    mov cl, 0x02   ; Sector number
-    mov dh, 0x00   ; Head number
-    int 0x13
-    jc .error
-    popa
-    ret
-.error:
-    mov si, error_msg
-    call print_string
-    hlt
-error_msg db "Disk read error", 0
 
 times 510-($-$$) db 0
 dw 0xAA55

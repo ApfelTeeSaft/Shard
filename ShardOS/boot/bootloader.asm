@@ -1,3 +1,4 @@
+BITS 32
 global _start
 extern kernel_main
 
@@ -19,5 +20,3 @@ _start:
 halt:
     hlt
     jmp halt
-
-section .note.GNU-stack
