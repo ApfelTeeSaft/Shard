@@ -1,9 +1,5 @@
-BITS 32
-
-section .text
 global _start
-extern kernel_main
-
+section .text
 _start:
     ; Set up segment registers
     mov ax, 0x10
@@ -21,3 +17,5 @@ _start:
 halt:
     hlt
     jmp halt
+
+.section .note.GNU-stack,"",@progbits
