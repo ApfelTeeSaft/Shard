@@ -82,6 +82,13 @@ void terminal_write(const char* data, size_t size) {
         terminal_putchar(data[i]);
 }
 
+size_t strlen(const char* str) {
+    size_t len = 0;
+    while (str[len])
+        len++;
+    return len;
+}
+
 void terminal_writestring(const char* data) {
     terminal_write(data, strlen(data));
 }
@@ -89,14 +96,6 @@ void terminal_writestring(const char* data) {
 // Function declarations
 void halt(void);
 uint8_t inb(uint16_t port);
-
-// Implementing string functions to avoid using standard library
-size_t strlen(const char* str) {
-    size_t len = 0;
-    while (str[len])
-        len++;
-    return len;
-}
 
 int strcmp(const char* str1, const char* str2) {
     while (*str1 && (*str1 == *str2)) {
