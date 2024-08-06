@@ -6,14 +6,18 @@ start:
     mov si, loader_msg
     call print_string
 
-    ; Disable interrupts and load GDT
+    ; Disable interrupts
     cli
+
+    ; Load the GDT
     lgdt [gdt_descriptor]
 
-    ; Enter protected mode
+    ; Enable protected mode by setting PE bit in CR0
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
+
+    ; Far jump to flush the prefetch queue and enter protected mode
     jmp CODE_SEG:init_pm
 
 BITS 32
@@ -53,10 +57,20 @@ print_string:
 gdt_start:
     ; Null descriptor
     dw 0, 0, 0, 0
-    ; Code segment descriptor
-    dw 0xFFFF, 0x0000, 0x9A00, 0x00CF
-    ; Data segment descriptor
-    dw 0xFFFF, 0x0000, 0x9200, 0x00CF
+    ; Code segment descriptor (base=0x00000000, limit=0xFFFFF)
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0x9A  ; Code segment descriptor
+    db 0xCF
+    db 0x00
+    ; Data segment descriptor (base=0x00000000, limit=0xFFFFF)
+    dw 0xFFFF
+    dw 0x0000
+    db 0x00
+    db 0x92  ; Data segment descriptor
+    db 0xCF
+    db 0x00
 gdt_end:
 
 gdt_descriptor:
