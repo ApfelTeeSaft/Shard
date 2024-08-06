@@ -1,5 +1,5 @@
 BITS 16
-ORG 0x0200
+ORG 0x0000
 
 start:
     ; Print entering protected mode message

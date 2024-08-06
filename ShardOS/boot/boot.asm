@@ -16,7 +16,7 @@ start:
     call print_string
 
     ; Load the second stage loader (2 sectors starting at LBA 1)
-    mov bx, 0x0000   ; Segment to load at
+    mov bx, 0x2000   ; Segment to load at (0x2000:0x0000 -> 0x20000)
     mov ah, 0x02     ; BIOS read sectors
     mov al, 0x02     ; Number of sectors to read
     mov ch, 0x00     ; Cylinder
@@ -27,7 +27,7 @@ start:
     jc disk_error
 
     ; Jump to the second stage loader
-    jmp 0x0000:0x0200
+    jmp 0x2000:0x0000
 
 disk_error:
     mov si, disk_error_msg
