@@ -18,4 +18,4 @@ halt:
     hlt
     jmp halt
 
-.section .note.GNU-stack,"",@progbits
+section .note.GNU-stack
