@@ -1,6 +1,5 @@
-; boot.asm - Boot sector in binary format
-BITS 16
-ORG 0x7C00
+[bits 16]
+[org 0x7c00]
 
 start:
     cli
@@ -8,7 +7,7 @@ start:
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x7C00
+    mov sp, 0x7c00
 
     ; Load the GDT
     lgdt [gdt_descriptor]
@@ -26,7 +25,7 @@ start:
     ; Far jump to flush the pipeline and switch to 32-bit mode
     jmp 0x08:protected_mode
 
-BITS 32
+[bits 32]
 
 protected_mode:
     ; Set up segment registers
@@ -38,7 +37,7 @@ protected_mode:
     mov ss, ax
     mov esp, 0x9C00
 
-    ; Jump to the kernel main function
+    ; Call kernel main function
     call kernel_main
 
     ; Hang if the kernel returns
