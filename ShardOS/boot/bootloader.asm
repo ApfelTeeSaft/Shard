@@ -18,6 +18,8 @@ _start:
     call print_string
 
     ; Call kernel main function
+    mov si, kernel_msg
+    call print_string
     call kernel_main
 
     ; Hang if the kernel returns
@@ -26,6 +28,7 @@ halt:
     jmp halt
 
 bootloader_msg db "Second stage bootloader running...\n", 0
+kernel_msg db "Calling kernel main...\n", 0
 
 print_string:
     mov ah, 0x0E

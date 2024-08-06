@@ -15,7 +15,7 @@ start:
     mov si, load_msg
     call print_string
 
-    ; Load the bootloader (1 sector, starting at LBA 1)
+    ; Load the bootloader (2 sectors, starting at LBA 1)
     mov bx, 0x0000   ; Segment to load at
     mov ah, 0x02     ; BIOS read sectors
     mov al, 0x02     ; Number of sectors to read
