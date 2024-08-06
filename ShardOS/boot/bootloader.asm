@@ -1,4 +1,6 @@
 global _start
+extern kernel_main
+
 section .text
 _start:
     ; Set up segment registers
