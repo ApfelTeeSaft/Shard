@@ -1,7 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
 // Hardware text mode color constants
 enum vga_color {
@@ -90,6 +89,22 @@ void terminal_writestring(const char* data) {
 // Function declarations
 void halt(void);
 uint8_t inb(uint16_t port);
+
+// Implementing string functions to avoid using standard library
+size_t strlen(const char* str) {
+    size_t len = 0;
+    while (str[len])
+        len++;
+    return len;
+}
+
+int strcmp(const char* str1, const char* str2) {
+    while (*str1 && (*str1 == *str2)) {
+        str1++;
+        str2++;
+    }
+    return *(unsigned char*)str1 - *(unsigned char*)str2;
+}
 
 // Keyboard data buffer
 #define KEYBOARD_BUFFER_SIZE 256
@@ -200,14 +215,6 @@ void kernel_main(void) {
         read_string(input_buffer, sizeof(input_buffer));
         parse_command(input_buffer);
     }
-}
-
-int strcmp(const char* str1, const char* str2) {
-    while (*str1 && (*str1 == *str2)) {
-        str1++;
-        str2++;
-    }
-    return *(unsigned char*)str1 - *(unsigned char*)str2;
 }
 
 void halt(void) {
