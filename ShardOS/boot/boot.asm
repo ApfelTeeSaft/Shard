@@ -15,8 +15,8 @@ start:
     mov si, load_msg
     call print_string
 
-    ; Load the kernel (2 sectors, starting at LBA 1)
-    mov bx, 0x0000   ; Segment to load at
+    ; Load the kernel (sectors starting at LBA 1)
+    mov bx, 0x1000   ; Segment to load at
     mov ah, 0x02     ; BIOS read sectors
     mov al, 0x02     ; Number of sectors to read
     mov ch, 0x00     ; Cylinder
@@ -50,13 +50,8 @@ init_pm:
     mov ss, ax
     mov esp, 0x9C00
 
-    ; Print bootloader message
-    mov si, bootloader_msg
-    call print_string
-
-    ; Print kernel message
-    mov si, kernel_msg
-    call print_string
+    ; Call the C kernel main function
+    call kernel_main
 
     ; Hang if the kernel returns
 halt:
@@ -91,9 +86,9 @@ CODE_SEG equ gdt_start + 8
 DATA_SEG equ gdt_start + 16
 
 load_msg db "Loading kernel...", 0
-bootloader_msg db "Kernel loaded, entering 32-bit mode...", 0
-kernel_msg db "Kernel main running...\nShardOS, Developed by apfelteesaft\n", 0
 disk_error_msg db "Disk read error", 0
 
 times 510-($-$$) db 0
 dw 0xAA55
+
+extern kernel_main
