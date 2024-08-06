@@ -1,4 +1,4 @@
-; boot.asm - Boot
+; boot.asm - Boot sector in binary format
 BITS 16
 ORG 0x7C00
 
@@ -10,21 +10,26 @@ start:
     mov ss, ax
     mov sp, 0x7C00
 
+    ; Load the GDT
     lgdt [gdt_descriptor]
 
+    ; Enable A20 line
     in al, 0x92
     or al, 00000010b
     out 0x92, al
 
+    ; Switch to protected mode
     mov eax, cr0
     or eax, 1
     mov cr0, eax
 
+    ; Far jump to flush the pipeline and switch to 32-bit mode
     jmp 0x08:protected_mode
 
 BITS 32
 
 protected_mode:
+    ; Set up segment registers
     mov ax, 0x10
     mov ds, ax
     mov es, ax
@@ -33,34 +38,23 @@ protected_mode:
     mov ss, ax
     mov esp, 0x9C00
 
-    lidt [idt_descriptor]
+    ; Jump to the kernel main function
+    call kernel_main
 
-    sti
-
-    call 0x100000
-
+    ; Hang if the kernel returns
 halt:
     hlt
     jmp halt
 
 gdt_start:
-    dq 0x0000000000000000
-    dq 0x00CF9A000000FFFF
-    dq 0x00CF92000000FFFF
+    dq 0x0000000000000000  ; Null descriptor
+    dq 0x00CF9A000000FFFF  ; Code segment descriptor
+    dq 0x00CF92000000FFFF  ; Data segment descriptor
 gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1
     dd gdt_start
-
-idt_start:
-    dd 0
-    dd 0
-idt_end:
-
-idt_descriptor:
-    dw idt_end - idt_start - 1
-    dd idt_start
 
 times 510 - ($ - $$) db 0
 dw 0xAA55

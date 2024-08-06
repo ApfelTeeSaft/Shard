@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
+// Hardware text mode color constants
 enum vga_color {
     VGA_COLOR_BLACK = 0,
     VGA_COLOR_BLUE = 1,
@@ -86,14 +87,17 @@ void terminal_writestring(const char* data) {
     terminal_write(data, strlen(data));
 }
 
+// Function declarations
 void halt(void);
 uint8_t inb(uint16_t port);
 
+// Keyboard data buffer
 #define KEYBOARD_BUFFER_SIZE 256
 char keyboard_buffer[KEYBOARD_BUFFER_SIZE];
 size_t keyboard_buffer_position = 0;
 
 char scancode_to_ascii(uint8_t scancode) {
+    // German keyboard scancode to ASCII conversion
     static char scancode_table[128] = {
         0,  27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 223, 180, '\b',
         '\t', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 252, '+', '\n',
@@ -141,6 +145,7 @@ char scancode_to_ascii(uint8_t scancode) {
 
 void keyboard_handler(void) {
     uint8_t scancode = inb(0x60);
+    // Handle only printable characters and backspace
     if (scancode < 0x80) {
         char c = scancode_to_ascii(scancode);
         if (c) {
@@ -167,7 +172,7 @@ void read_string(char* buffer, size_t buffer_size) {
     for (size_t i = 0; i < keyboard_buffer_position && i < buffer_size - 1; i++) {
         buffer[i] = keyboard_buffer[i];
     }
-    buffer[keyboard_buffer_position - 1] = '\0';
+    buffer[keyboard_buffer_position - 1] = '\0'; // Replace '\n' with null terminator
 }
 
 void parse_command(char* input) {
