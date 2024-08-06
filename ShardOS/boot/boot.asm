@@ -1,5 +1,5 @@
-[bits 16]
-[org 0x7c00]
+BITS 16
+ORG 0x7C00
 
 start:
     cli
@@ -9,51 +9,36 @@ start:
     mov ss, ax
     mov sp, 0x7c00
 
-    ; Load the GDT
-    lgdt [gdt_descriptor]
+    ; Load the second stage bootloader
+    mov si, msg
+    call print_string
 
-    ; Enable A20 line
-    in al, 0x92
-    or al, 00000010b
-    out 0x92, al
+    ; Load the second stage bootloader
+    mov bx, 0x1000
+    mov dh, 1
+    mov dl, 0
+    mov ch, 0
+    mov cl, 2
 
-    ; Switch to protected mode
-    mov eax, cr0
-    or eax, 1
-    mov cr0, eax
+    mov ah, 0x02
+    mov al, 1
+    int 0x13
 
-    ; Far jump to flush the pipeline and switch to 32-bit mode
-    jmp 0x08:protected_mode
+    ; Jump to second stage bootloader
+    jmp 0x1000:0
 
-[bits 32]
+print_string:
+    mov ah, 0x0e
+.loop:
+    lodsb
+    cmp al, 0
+    je .done
+    int 0x10
+    jmp .loop
+.done:
+    ret
 
-protected_mode:
-    ; Set up segment registers
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov esp, 0x9C00
+msg db "Loading second stage bootloader...", 0
 
-    ; Call kernel main function
-    call kernel_main
-
-    ; Hang if the kernel returns
-halt:
-    hlt
-    jmp halt
-
-gdt_start:
-    dq 0x0000000000000000  ; Null descriptor
-    dq 0x00CF9A000000FFFF  ; Code segment descriptor
-    dq 0x00CF92000000FFFF  ; Data segment descriptor
-gdt_end:
-
-gdt_descriptor:
-    dw gdt_end - gdt_start - 1
-    dd gdt_start
-
-times 510 - ($ - $$) db 0
+times 510-($-$$) db 0
 dw 0xAA55
