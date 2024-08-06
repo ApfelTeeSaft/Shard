@@ -54,8 +54,9 @@ init_pm:
     mov si, bootloader_msg
     call print_string
 
-    ; Call kernel main function
-    call kernel_main
+    ; Print kernel message
+    mov si, kernel_msg
+    call print_string
 
     ; Hang if the kernel returns
 halt:
@@ -91,9 +92,8 @@ DATA_SEG equ gdt_start + 16
 
 load_msg db "Loading kernel...", 0
 bootloader_msg db "Kernel loaded, entering 32-bit mode...", 0
+kernel_msg db "Kernel main running...\nShardOS, Developed by apfelteesaft\n", 0
 disk_error_msg db "Disk read error", 0
 
 times 510-($-$$) db 0
 dw 0xAA55
-
-extern kernel_main
